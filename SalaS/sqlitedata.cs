@@ -40,15 +40,16 @@ namespace SalaS
                 cnn.Execute($"insert into user (uname, upass) values ('{user.Uname}', '{user.Upass}')");
             }
         }
-        public static bool Login(string uname, string upass) {
+        public static bool Login(User user) {
             using (SQLiteConnection cnn = new SQLiteConnection(LoadConnectionString()))
             {
-                var result = cnn.Query<User>($"select * from user where uname = '{uname}' and upass = '{upass}')");
+                var result = cnn.Query<User>($"select * from user where uname = '{user.Uname}' and upass = '{user.Upass}'");
                 result = result.ToList();
-                if (result.Count() <= 0) { return false; }
-                else { return true; }
+                if (result.Count() == 1) { return true; }
+                else { return false; }
             }
         }
+        
         private static string LoadConnectionString(string id = "Default")
         {
             return ConfigurationManager.ConnectionStrings[id].ConnectionString;

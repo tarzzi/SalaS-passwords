@@ -5,23 +5,64 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace SalaS
 {
     class Program
     {
         static void Main(string[] args)
         {
-            string mpass = "k";
-            Console.WriteLine("Give master-password");
-            string guess = Console.ReadLine();
-            if (guess == mpass)
+            int select = 1;
+            do
+            {
+                Console.WriteLine("1. Login\n2. Create user\n0. Exit");
+                int.TryParse(Console.ReadLine(), out select);
+                switch (select)
+                {
+                    case 1:
+                        Login();
+                        break;
+                    case 2:
+                        CreateUser();
+                        break;
+                }
+            } while (select != 0);
+        }
+        private static void Login() {
+            Console.WriteLine("Give username:");
+            string uname = Console.ReadLine();
+            Console.WriteLine("Give password:");
+            string upass = Console.ReadLine();
+            upass = PasswordHasher.Hash(upass);
+            User user = new User(uname, upass);
+            if (sqlitedata.Login(user))
             {
                 Menu();
             }
-            else {
+            else
+            {
                 Console.WriteLine("Access denied");
                 Console.ReadKey();
             }
+
+        }
+        private static void CreateUser() {
+            Console.WriteLine("Give username: ");
+            string uname = Console.ReadLine();
+            Console.WriteLine("Give password: ");
+            string upass = Console.ReadLine();
+            upass = PasswordHasher.Hash(upass);
+            User user = new User(uname, upass);
+            try
+            {
+                sqlitedata.AddUser(user);
+                Console.WriteLine("User added");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to create user - {ex}");
+            }
+            finally { Console.ReadKey(); }
         }
         private static void Menu() {
             int selection = 1;
@@ -79,7 +120,6 @@ namespace SalaS
                 }
                 catch (Exception)
                 {
-
                     throw;
                 }
                 sqlitedata.DeletePass(pick);
@@ -93,13 +133,12 @@ namespace SalaS
             string serv = Console.ReadLine();
             Console.WriteLine("Enter password for service");
             string pass = Console.ReadLine();
+            pass = PasswordHasher.Hash(pass); 
             p.Service = serv;
             p.Passwd = pass;
             sqlitedata.SavePass(p);
             Console.WriteLine("Added succesfully");
-            Console.ReadKey();
-            
-
+            Console.ReadKey();  
         
         }
 
@@ -112,7 +151,7 @@ namespace SalaS
                 int i = 1;
                 Console.WriteLine("Index | Service | Password");
                 foreach (Pass pv in passes)
-                {
+                {                    
                     Console.WriteLine($"{i}.: {pv.Service} | {pv.Passwd}");
                     i++;
                 }
@@ -132,7 +171,7 @@ namespace SalaS
         }
         public override string ToString()
         {
-            return $"Service: {Service}  && Password: {Passwd}";
+            return $"Service: {Service} | Password: {Passwd}";
         }
     }
 }

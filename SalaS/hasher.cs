@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SalaS
 {
-    public static class SecurePasswordHasher
+    public static class PasswordHasher
     {
         private const int SaltSize = 16;
         private const int HashSize = 20;
